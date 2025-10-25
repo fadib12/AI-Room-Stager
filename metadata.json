@@ -1,0 +1,5 @@
+{
+  "name": "AI Room Stager",
+  "description": "An AI-powered virtual staging application. Upload a photo of an empty room or outdoor space, choose a style, and instantly generate beautifully staged design variations. Explore complex design ideas with our AI expert.",
+  "requestFramePermissions": []
+}
