@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { GeneratedImage, FurnitureItem, Product } from '../types';
-import { identifyFurniture, findProducts } from '../services/geminiService';
-import { base64ToGenerativePart } from '../utils/fileUtils';
+import { identifyFurniture, findProducts } from '../services/openaiService';
 import { ProductCard } from './ProductCard';
 import { Spinner } from './Spinner';
 import { EditIcon } from './icons/EditIcon';
@@ -29,14 +28,13 @@ export const ShopTheLook: React.FC<ShopTheLookProps> = ({ image }) => {
       setItems([]);
       setProducts({});
       try {
-        const imagePart = base64ToGenerativePart(image.base64);
-        const identifiedItems = await identifyFurniture(imagePart);
+        const identifiedItems = await identifyFurniture(image.base64);
         const itemsWithIds = identifiedItems.map(item => ({ ...item, id: crypto.randomUUID() }));
         setItems(itemsWithIds);
 
         if (itemsWithIds.length > 0) {
           setStatus('finding');
-          // FIX: Fetch products sequentially to avoid API rate limiting (429 error).
+          // Fetch products sequentially to avoid API rate limiting
           for (const item of itemsWithIds) {
             const productResults = await findProducts(item);
             setProducts(prev => ({...prev, [item.id]: productResults}));

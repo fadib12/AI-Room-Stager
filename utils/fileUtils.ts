@@ -1,33 +1,25 @@
-// FIX: Updated import to use the correct '@google/genai' package.
-import { Part } from '@google/genai';
-
-export const fileToGenerativePart = async (file: File): Promise<Part> => {
+/**
+ * Converts a File object to a base64 encoded string for use with OpenAI API.
+ */
+export const fileToBase64 = async (file: File): Promise<string> => {
   const base64EncodedDataPromise = new Promise<string>((resolve) => {
     const reader = new FileReader();
     reader.onloadend = () => {
       if (typeof reader.result === 'string') {
+        // Remove the data URL prefix (e.g., "data:image/jpeg;base64,")
         resolve(reader.result.split(',')[1]);
       } else {
-        // This case should ideally not happen with readAsDataURL
         resolve('');
       }
     };
     reader.readAsDataURL(file);
   });
-  const base64EncodedData = await base64EncodedDataPromise;
-  return {
-    inlineData: {
-      data: base64EncodedData,
-      mimeType: file.type,
-    },
-  };
+  return await base64EncodedDataPromise;
 };
 
-export const base64ToGenerativePart = (base64: string, mimeType: string = 'image/png'): Part => {
-    return {
-        inlineData: {
-            data: base64,
-            mimeType: mimeType
-        }
-    };
-};
+/**
+ * Legacy function name maintained for backwards compatibility.
+ * @deprecated Use fileToBase64 instead
+ */
+export const fileToGenerativePart = fileToBase64;
+

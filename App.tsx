@@ -7,9 +7,9 @@ import { VibeSelector } from './components/VibeSelector';
 import { ImageGrid } from './components/ImageGrid';
 import { ImageDetailView } from './components/ImageDetailView';
 import { Spinner } from './components/Spinner';
-import { generateStagedImages } from './services/geminiService';
+import { generateStagedImages } from './services/openaiService';
 import { GeneratedImage } from './types';
-import { fileToGenerativePart } from './utils/fileUtils';
+import { fileToBase64 } from './utils/fileUtils';
 
 type AppState = 'initial' | 'generating' | 'results' | 'error';
 
@@ -37,9 +37,9 @@ const App: React.FC = () => {
     setAppState('generating');
     setError(null);
     try {
-      const imagePart = await fileToGenerativePart(originalImage);
+      const imageBase64 = await fileToBase64(originalImage);
       const prompt = `Virtually stage this empty room to have a "${vibe}" style.`;
-      const images = await generateStagedImages(prompt, imagePart);
+      const images = await generateStagedImages(prompt, imageBase64);
       setGeneratedImages(images.map(base64 => ({ id: crypto.randomUUID(), base64 })));
       setAppState('results');
     } catch (err) {
@@ -61,9 +61,9 @@ const App: React.FC = () => {
     if (!originalImage || !selectedImage) return null;
 
     try {
-        const imagePart = await fileToGenerativePart(originalImage);
+        const imageBase64 = await fileToBase64(originalImage);
         const prompt = `Virtually stage this empty room to have a "${vibe}" style. Generate a different variation.`;
-        const newImages = await generateStagedImages(prompt, imagePart, 1);
+        const newImages = await generateStagedImages(prompt, imageBase64, 1);
         if (newImages.length > 0) {
             const newImage: GeneratedImage = { id: selectedImage.id, base64: newImages[0] };
             setGeneratedImages(prev => prev.map(img => img.id === newImage.id ? newImage : img));

@@ -1,6 +1,5 @@
-
 import React, { useState } from 'react';
-import { getExpertResponse } from '../services/geminiService';
+import { getExpertResponse } from '../services/openaiService';
 import { Spinner } from './Spinner';
 import { CloseIcon } from './icons/CloseIcon';
 
@@ -41,7 +40,7 @@ export const ExpertChat: React.FC<ExpertChatProps> = ({ isOpen, onClose }) => {
         </button>
         <div className="p-6 border-b border-slate-700">
           <h3 className="text-xl font-bold text-center">Ask an AI Design Expert</h3>
-          <p className="text-sm text-slate-400 text-center">Powered by Gemini 2.5 Pro with Thinking Mode for complex questions.</p>
+          <p className="text-sm text-slate-400 text-center">Powered by GPT-4 for expert design advice.</p>
         </div>
 
         <div className="flex-grow p-6 overflow-y-auto">
