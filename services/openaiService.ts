@@ -99,8 +99,13 @@ export const identifyFurniture = async (imageBase64: string): Promise<Omit<Furni
         });
 
         const content = response.choices[0]?.message?.content || '{}';
-        const result = JSON.parse(content);
-        return result.items || [];
+        try {
+            const result = JSON.parse(content);
+            return result.items || [];
+        } catch (parseError) {
+            console.error("Error parsing furniture identification response:", parseError);
+            return [];
+        }
     } catch (error) {
         console.error("Error identifying furniture:", error);
         return [];
@@ -109,6 +114,7 @@ export const identifyFurniture = async (imageBase64: string): Promise<Omit<Furni
 
 /**
  * Finds shopping results for a given furniture item.
+ * Note: URLs are AI-generated and should be validated before use in production.
  */
 export const findProducts = async (item: FurnitureItem): Promise<Product[]> => {
     const prompt = `Based on the following furniture item, find 3 to 4 matching products available for purchase online. 
@@ -130,8 +136,24 @@ export const findProducts = async (item: FurnitureItem): Promise<Product[]> => {
         });
 
         const content = response.choices[0]?.message?.content || '{}';
-        const result = JSON.parse(content);
-        return result.products || [];
+        try {
+            const result = JSON.parse(content);
+            const products = result.products || [];
+            
+            // Basic URL validation to filter out obviously invalid URLs
+            return products.filter((product: Product) => {
+                try {
+                    const url = new URL(product.url);
+                    return url.protocol === 'http:' || url.protocol === 'https:';
+                } catch {
+                    console.warn(`Invalid URL filtered out: ${product.url}`);
+                    return false;
+                }
+            });
+        } catch (parseError) {
+            console.error("Error parsing product search response:", parseError);
+            return [];
+        }
     } catch (error) {
         console.error(`Error finding products for ${item.name}:`, error);
         return [];
