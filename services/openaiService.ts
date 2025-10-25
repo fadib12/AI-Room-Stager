@@ -141,12 +141,17 @@ export const findProducts = async (item: FurnitureItem): Promise<Product[]> => {
             const products = result.products || [];
             
             // Basic URL validation to filter out obviously invalid URLs
+            // Only allow HTTPS URLs for security
             return products.filter((product: Product) => {
                 try {
                     const url = new URL(product.url);
-                    return url.protocol === 'http:' || url.protocol === 'https:';
+                    if (url.protocol !== 'https:') {
+                        console.warn(`Non-HTTPS URL filtered out for product: ${product.name}`);
+                        return false;
+                    }
+                    return true;
                 } catch {
-                    console.warn(`Invalid URL filtered out: ${product.url}`);
+                    console.warn(`Invalid URL filtered out for product: ${product.name}`);
                     return false;
                 }
             });
